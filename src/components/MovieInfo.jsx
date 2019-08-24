@@ -1,77 +1,55 @@
-import React from 'react'
-import propTypes from 'prop-types'
+import React, {useEffect, useState} from 'react'
 import {connect} from 'react-redux'
 import actions from '../store/actions'
 import search from '../movieApi'
-import * as is_video from 'is-video'
 import { MDBInput, MDBBtn, MDBRow, MDBCol } from 'mdbreact';
 
-class MovieInfo extends React.Component {
-    componentDidMount() {
-        if (this.props.title) {
-            search.movie(this.props.title).then(res => {
+const MovieInfo = (props) => {
+    const [overview, setOverview] = useState("")
+    const [newTitle, setNewTitle] = useState("")
+    const [poster, setPoster] = useState("")
+    const [manualInsert, setManualInsert] = useState(false)
+
+    // destructure props in order to use it with useEffect()
+    const {title, updatePoster} = props
+    // update title and search results
+    useEffect(() => {
+        // reinitialize overview and poster to fetch new ones
+        setOverview("")
+        setPoster("")
+        if (title !== "") {
+            search.movie(title).then(res => {
                 if (res.data.total_results > 0) {
-                    this.setState({
-                        overview:res.data.results[0].overview,
-                        rating:res.data.results[0].vote_average,
-                        poster:`https://image.tmdb.org/t/p/w500${res.data.results[0].poster_path}`
-                    })
-                    this.props.updatePoster(`https://image.tmdb.org/t/p/w500${res.data.results[0].backdrop_path}`)
+                    setManualInsert(false)
+                    setOverview(res.data.results[0].overview)
+                    setPoster(`https://image.tmdb.org/t/p/w500${res.data.results[0].poster_path}`)
+                    updatePoster(`https://image.tmdb.org/t/p/w500${res.data.results[0].backdrop_path}`)
                 } else {
-                    this.setState({
-                        manualInsert:true
-                    })
+                    setManualInsert(true)
                 }
             })
         }
-    }
-    componentDidUpdate(prevProps) {
-        if (prevProps.title !== this.props.title && this.props.title !== "") {
-            this.setState({overview:"", rating:0,poster:""})
-            search.movie(this.props.title).then(res => {
-                if (res.data.total_results > 0) {
-                    this.setState({
-                        overview:res.data.results[0].overview,
-                        rating:res.data.results[0].vote_average,
-                        poster:`https://image.tmdb.org/t/p/w500${res.data.results[0].poster_path}`
-                    })
-                    this.props.updatePoster(`https://image.tmdb.org/t/p/w500${res.data.results[0].backdrop_path}`)
-                } else {
-                    this.setState({
-                        manualInsert:true
-                    })
-                }
-            })
-        }
-    }
-    state = {
-        overview:"",
-        rating:0,
-        manualInsert:false,
-        title:"",
-        poster:""
-    }
-    render() {
-        if (this.state.manualInsert) {
-            return(
-                <div>
-                    <p>Our monkeys could not understand the movie's title. Please enter it below</p>
-                    <MDBInput getValue={(title) => this.setState({title})} label="Insert title here" />
-                    <MDBBtn color="secondary" onClick={() => {
-                        this.setState({manualInsert:false})
-                        this.props.updateTitle(this.state.title)
-                    }}>Validate</MDBBtn>
-                </div>
-            )
-        }
+    }, [title]) // only update if the title has changed
+    // if user needs to manually insert title
+    if (manualInsert) {
+        return (
+            <div>
+                <p>Our monkeys could not understand the movie's title. Please enter it below</p>
+                <MDBInput getValue={(title) => setNewTitle(title)} label="Insert title here" />
+                <MDBBtn color="secondary" onClick={() => {
+                    props.updateTitle(newTitle) // dispatch action to store to update movie title
+                }}>Validate</MDBBtn>
+        </div>
+        )
+    } else /* if tmdb got at least one movie back, let's render the info we have on it */  {
         return (
             <div className="z-depth-3">
                 <MDBRow>
                     <MDBCol size="6">
-                        <img src={this.state.poster} className="img-fluid" alt={this.props.title} />
+                        <img src={poster} className="img-fluid" alt={props.title} />
                     </MDBCol>
                     <MDBCol size="6">
-                        <p>{this.state.overview}</p>
+                        <p>{overview}</p>
                     </MDBCol>
                 </MDBRow>
             </div>
@@ -79,9 +57,6 @@ class MovieInfo extends React.Component {
     }
 }
 
-MovieInfo.propTypes = {
-    title: propTypes.string
-}
 
 const mapStateToProps = state => {
     return {
