@@ -1,5 +1,5 @@
 import React from 'react'
-import { MDBBtn, MDBListGroup, MDBListGroupItem, MDBSpinner } from 'mdbreact';
+import { MDBBtn, MDBListGroup, MDBListGroupItem} from 'mdbreact';
 
 
 class FileList extends React.Component {

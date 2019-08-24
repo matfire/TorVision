@@ -29,8 +29,9 @@
 
 - [ ] drag and drop a torrent file to skip fetching metadata
 - [ ] testing
-- [ ] refactoring using react hooks instead of classes
+- [x] refactoring using react hooks instead of classes
 - [ ] better component separations
+- [ ] caching system (not having to download the same torrent twice in the same session)
 
 ## Want to help? Found a mistake? have a suggestion?
 

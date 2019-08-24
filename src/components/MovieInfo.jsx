@@ -4,14 +4,13 @@ import actions from '../store/actions'
 import search from '../movieApi'
 import { MDBInput, MDBBtn, MDBRow, MDBCol } from 'mdbreact';
 
-const MovieInfo = (props) => {
+const MovieInfo = ({title, updatePoster, updateTitle}) => {
     const [overview, setOverview] = useState("")
     const [newTitle, setNewTitle] = useState("")
     const [poster, setPoster] = useState("")
     const [manualInsert, setManualInsert] = useState(false)
 
     // destructure props in order to use it with useEffect()
-    const {title, updatePoster} = props
     // update title and search results
     useEffect(() => {
         // reinitialize overview and poster to fetch new ones
@@ -37,7 +36,7 @@ const MovieInfo = (props) => {
                 <p>Our monkeys could not understand the movie's title. Please enter it below</p>
                 <MDBInput getValue={(title) => setNewTitle(title)} label="Insert title here" />
                 <MDBBtn color="secondary" onClick={() => {
-                    props.updateTitle(newTitle) // dispatch action to store to update movie title
+                    updateTitle(newTitle) // dispatch action to store to update movie title
                 }}>Validate</MDBBtn>
         </div>
         )
@@ -46,7 +45,7 @@ const MovieInfo = (props) => {
             <div className="z-depth-3">
                 <MDBRow>
                     <MDBCol size="6">
-                        <img src={poster} className="img-fluid" alt={props.title} />
+                        <img src={poster} className="img-fluid" alt={title} />
                     </MDBCol>
                     <MDBCol size="6">
                         <p>{overview}</p>

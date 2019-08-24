@@ -1,57 +1,32 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import "./viewer.css"
 import LoadingBar from 'react-top-loading-bar'
 import Plyr from 'plyr';
-import {MDBContainer, MDBRow, MDBCol, MDBInput, MDBSpinner, MDBIcon, MDBAlert, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBListGroup, MDBListGroupItem} from 'mdbreact'
+import {MDBContainer, MDBRow, MDBCol, MDBIcon, MDBAlert, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBListGroup, MDBListGroupItem} from 'mdbreact'
 import * as is_video from 'is-video'
 import {connect} from 'react-redux'
-import PropTypes from 'prop-types'
 import MovieInfo from '../components/MovieInfo';
 import actions from '../store/actions';
 import FileList from '../components/FileList';
 
 var WebTorrent = require('webtorrent');
 
-const getFileExtension = (name) => {
-    return (name.substring(name.lastIndexOf('.')+1, name.length) || name)
-}
+const Viewer = ({magnet, poster, title, updateTitle, history}) => {
+    const [downloadProgress, updateDownloadProgress] = useState(0)
+    const [downloaded, updateDownloaded] = useState(0)
+    const [totalSize, updateTotalSize] = useState(0)
+    const [dlSpeed, updateDlSpeed] = useState(0)
+    const [remaining, updateRemaining] = useState(0)
+    const [choices, updateChoices] = useState([])
+    const [allFiles, updateAllFiles] = useState([])
+    const [showChoiceModal, updateShowChoiceModal] = useState(false)
 
-class Viewer extends React.Component {
-    state = {
-        downloadProgress:0,
-        title:"",
-        player:"hidden",
-        loading:true,
-        dowloaded:0,
-        totalSize:0,
-        dlSpeed:0,
-        remaining:0,
-        choices:[],
-        allFiles:[],
-        showChoiceModal:false
-    }
-    componentDidMount() {
-        //player setup
-        new Plyr("#basePlayer")
-        
-        this.client = new WebTorrent();
-    
-        this.client.on('error', err => {
-          console.log('[-] Webtorrent error: ' + err.message);
-        });
-        this.changeTorrent(this.props.magnet)
-    }
-    changeTorrent = (e) => {
-        this.setState({
-            downloadProgress:0,
-            loading:true
-        })
-        console.log(`adding torrent with magnet ${e}`)
-        this.props.updateTitle("")
-        this.client.add(e, (torrent) => {
-            this.setState({totalSize:Math.floor(torrent.length / 1000 / 1000)})
-            this.props.updateTitle(torrent.name)
-            console.log("got the torrent", torrent.name)
+    const changeTorrent = (magnet, client) => {
+        // add magnet link to webtorrent client
+        client.add(magnet, (torrent) => {
+            updateTotalSize(Math.floor(torrent.length / 1000 / 1000))
+            updateTitle(torrent.name)
+            console.log("got the torrent", torrent.name) // for debug only
             torrent.on("done", () => {
                 let files = []
                 torrent.files.map((file) => {
@@ -59,61 +34,69 @@ class Viewer extends React.Component {
                         files.push({name:file.name, url})
                     })
                 })
-                this.setState({downloadProgress:100, allFiles:files});
-
+                updateDownloadProgress(100)
+                updateAllFiles(files) // files to be downloaded
             })
+            // each time a bit of torrent is downloaded, update progress bar and stats
             torrent.on("download", () => {
-                this.setState({downloadProgress:torrent.progress * 100, dowloaded:Math.floor(torrent.downloaded / 1000 / 1000), dlSpeed:Math.floor(torrent.downloadSpeed / 1000 / 1000), remaining:Math.floor(torrent.timeRemaining / 1000)})
-                if (this.state.player === "hidden") {
-                    this.setState({player:"visible"})
-                }
+                updateDownloadProgress(torrent.progress * 100)
+                updateDownloaded(Math.floor(torrent.downloaded / 1000 / 1000))
+                updateDlSpeed(Math.floor(torrent.downloadSpeed / 1000 / 1000))
+                updateRemaining(Math.floor(torrent.timeRemaining / 1000))
             })
             let playable_files = []
             torrent.files.map((file) => {
                 if (is_video(file.name)) {
-                    playable_files.push(file)
+                    playable_files.push(file) // if file is a video, add it to video list
                 }
             })
-            if (playable_files.length === 1) {
+            if (playable_files.length === 1) { // if there is only one file, play it
                 let file = playable_files[0]
                 file.renderTo("video#basePlayer", {maxBlobLength:1000 * 1000 * 20 * 1000} ,(err, elem) => {
                 if (err) throw err; 
-                    this.setState({player:"visible", loading:false})
                 })
                 return
             } else {
-                this.setState({
-                    choices:playable_files,
-                    showChoiceModal:true
-                })
+                updateChoices(playable_files)
+                updateShowChoiceModal(true)
             }
         })
     }
-    componentDidUpdate(prevProps) {
-        if (prevProps.poster !== this.props.poster) {
-            let video = document.getElementById("basePlayer").poster = this.props.poster
+    //updates poster if change is detected
+    useEffect(() => {
+        if (poster !== "") {
+            document.getElementById("basePlayer").poster = poster
         }
-    }
-    render() {
-        let style = {
-            visibility: this.state.player
-        }
-        return(
-            <MDBContainer fluid>
+    }, [poster])
+
+    useEffect(() => {
+        new Plyr("#basePlayer")
+        
+        let client = new WebTorrent();
+    
+        client.on('error', err => {
+          console.log('[-] Webtorrent error: ' + err.message);
+        });
+        updateTitle("")
+        changeTorrent(magnet, client)
+
+    }, [magnet])
+    return (
+        <MDBContainer fluid>
                 <MDBRow>
                     <MDBCol md="3">
                         <MDBIcon icon="angle-left" size="3x" onClick={() => {
-                            this.props.updateTitle("")
-                            this.props.history.push("/")
+                            updateTitle("")
+                            history.push("/")
                             }
                         } />
                     </MDBCol>
                 </MDBRow>
-                <MDBModal isOpen={this.state.showChoiceModal} toggle={() => this.setState({showChoiceModal:!this.state.showChoiceModal})}>
+                <MDBModal isOpen={showChoiceModal} toggle={() => this.setState({showChoiceModal:!showChoiceModal})}>
                     <MDBModalHeader>Choose what to play</MDBModalHeader>
                     <MDBModalBody>
                         <MDBListGroup>
-                        {this.state.choices.map((file) => (
+                        {choices.map((file) => (
                             <MDBListGroupItem key={file.length} onClick={() => {
                                 file.renderTo("video#basePlayer")
                                 this.setState({
@@ -128,11 +111,11 @@ class Viewer extends React.Component {
                     </MDBModalFooter>
                 </MDBModal>
                 <h2 className="text-center mb-2">TorrVision</h2>
-                <LoadingBar progress={this.state.downloadProgress} height={8} color='red' />
-                {this.state.totalSize > 200 && this.state.downloadProgress !== 100 && <MDBAlert color="danger">This file is too large to play while downloading. Please wait for it to finish download</MDBAlert>}
-                <h2 className="text-center mt-4">{this.props.title}</h2>
-                {this.state.downloadProgress === 0 && <h4 className="text-center">Looking for peers...</h4>}
-                {this.state.downloadProgress > 0 && this.state.downloadProgress < 100 && <h4 className="text-center">{this.state.dowloaded}/{this.state.totalSize} MB dowloaded at {this.state.dlSpeed} Mb/sec {this.state.remaining} seconds remaining</h4>}
+                <LoadingBar progress={downloadProgress} height={8} color='red' />
+                {totalSize > 200 && downloadProgress !== 100 && <MDBAlert color="danger">This file is too large to play while downloading. Please wait for it to finish download</MDBAlert>}
+                <h2 className="text-center mt-4">{title}</h2>
+                {downloadProgress === 0 && <h4 className="text-center">Looking for peers...</h4>}
+                {downloadProgress > 0 && downloadProgress < 100 && <h4 className="text-center">{downloaded}/{totalSize} MB dowloaded at {dlSpeed} Mb/sec {remaining} seconds remaining</h4>}
                 <MDBRow center id="videoContainer" className="mt-5 pt-5">
                     <MDBCol size="8">
                     {<video id="basePlayer" controls/>}
@@ -142,18 +125,13 @@ class Viewer extends React.Component {
                     </MDBCol>
                 </MDBRow>
                 <MDBRow>
-                    {this.state.allFiles.length > 0 && <h4 className="text-center">Files Downloaded</h4>}
+                    {allFiles.length > 0 && <h4 className="text-center">Files Downloaded</h4>}
                     <MDBCol size="12">
-                            <FileList files={this.state.allFiles} />
+                            <FileList files={allFiles} />
                     </MDBCol>
                 </MDBRow>
             </MDBContainer>
-        )
-    }
-}
-
-Viewer.propTypes = {
-    magnet: PropTypes.string
+    )
 }
 
 const mapStateToProps = state => {
