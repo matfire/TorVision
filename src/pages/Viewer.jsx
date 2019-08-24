@@ -29,6 +29,7 @@ const Viewer = ({magnet, poster, title, updateTitle, history}) => {
             console.log("got the torrent", torrent.name) // for debug only
             torrent.on("done", () => {
                 let files = []
+                // eslint-disable-next-line
                 torrent.files.map((file) => {
                     file.getBlobURL((err, url) => {
                         files.push({name:file.name, url})
@@ -45,6 +46,7 @@ const Viewer = ({magnet, poster, title, updateTitle, history}) => {
                 updateRemaining(Math.floor(torrent.timeRemaining / 1000))
             })
             let playable_files = []
+            // eslint-disable-next-line
             torrent.files.map((file) => {
                 if (is_video(file.name)) {
                     playable_files.push(file) // if file is a video, add it to video list
@@ -68,7 +70,6 @@ const Viewer = ({magnet, poster, title, updateTitle, history}) => {
             document.getElementById("basePlayer").poster = poster
         }
     }, [poster])
-
     useEffect(() => {
         new Plyr("#basePlayer")
         
@@ -79,7 +80,7 @@ const Viewer = ({magnet, poster, title, updateTitle, history}) => {
         });
         updateTitle("")
         changeTorrent(magnet, client)
-
+        // eslint-disable-next-line
     }, [magnet])
     return (
         <MDBContainer fluid>

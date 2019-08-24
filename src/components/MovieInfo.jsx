@@ -28,6 +28,7 @@ const MovieInfo = ({title, updatePoster, updateTitle}) => {
                 }
             })
         }
+        // eslint-disable-next-line
     }, [title]) // only update if the title has changed
     // if user needs to manually insert title
     if (manualInsert) {
