@@ -6,7 +6,7 @@
 
 - [x] read magnet links and info hashes
 - [x] select file to play if more than one are found
-- [x] save downloaded files one torrent is completed
+- [x] save downloaded files once torrent is completed
 
 ****
 
