@@ -16,6 +16,8 @@
 
 ⚛ Redux
 
+🕸 [Webtorrent](https://webtorrent.io/)
+
 ****
 
 ## What's to come
