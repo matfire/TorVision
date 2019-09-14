@@ -8,7 +8,7 @@ class FileList extends React.Component {
             <div>
                 <MDBListGroup>
                     {this.props.files.map((file) => (
-                        <MDBListGroupItem key={file.length}>{file.name} <MDBBtn target="_blank" download={file.name} tag="a" href={file.url}>Download</MDBBtn></MDBListGroupItem>
+                        <MDBListGroupItem key={file.name}>{file.name} <MDBBtn target="_blank" download={file.name} tag="a" href={file.url}>Download</MDBBtn></MDBListGroupItem>
                     ))}
                 </MDBListGroup>
             </div>

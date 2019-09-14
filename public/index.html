@@ -10,6 +10,21 @@
       name="description"
       content="Web site created using create-react-app"
     />
+    <style>
+      #page-container {
+        position: relative;
+        min-height: 100vh;
+      }
+      #content-wrap {
+        padding-bottom: 2.5rem;
+      }
+      #footer {
+        position: absolute;
+        bottom: 0;
+        width:100%;
+        height:2.5rem;
+      }
+    </style>
     <link rel="apple-touch-icon" href="logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -29,7 +44,10 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="page-container">
+      <div id="content-wrap"></div>
+      <footer data-test="footer" class="page-footer black" id="footer"><div class="footer-copyright text-center"><div data-test="container" class="container-fluid" >© 2019 Copyright: made with 💛  by Matteo Gassend using <a href="https://webtorrent.io/">Webtorrent</a></div></div></footer>
+    </div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

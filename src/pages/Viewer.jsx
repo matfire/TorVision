@@ -22,6 +22,7 @@ const Viewer = ({magnet, poster, title, updateTitle, history}) => {
     const [showChoiceModal, updateShowChoiceModal] = useState(false)
 
     const changeTorrent = (magnet, client) => {
+        let video = document.getElementById("basePlayer")
         // add magnet link to webtorrent client
         client.add(magnet, (torrent) => {
             updateTotalSize(Math.floor(torrent.length / 1000 / 1000))
@@ -33,10 +34,11 @@ const Viewer = ({magnet, poster, title, updateTitle, history}) => {
                 torrent.files.map((file) => {
                     file.getBlobURL((err, url) => {
                         files.push({name:file.name, url})
+
+                        updateAllFiles(files) // files to be downloaded
                     })
                 })
                 updateDownloadProgress(100)
-                updateAllFiles(files) // files to be downloaded
             })
             // each time a bit of torrent is downloaded, update progress bar and stats
             torrent.on("download", () => {
@@ -125,8 +127,8 @@ const Viewer = ({magnet, poster, title, updateTitle, history}) => {
                         {<MovieInfo/>}
                     </MDBCol>
                 </MDBRow>
-                <MDBRow>
-                    {allFiles.length > 0 && <h4 className="text-center">Files Downloaded</h4>}
+                <MDBRow className="mt-5 mb-3">
+                    <h4 className="text-center ml-2">Files Downloaded</h4>
                     <MDBCol size="12">
                             <FileList files={allFiles} />
                     </MDBCol>

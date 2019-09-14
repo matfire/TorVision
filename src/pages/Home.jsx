@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import actions from '../store/actions'
 import { connect } from 'react-redux';
-import { MDBContainer, MDBRow, MDBInput, MDBCol, MDBBtn, MDBAlert } from 'mdbreact';
+import { MDBContainer, MDBRow, MDBInput, MDBCol, MDBBtn, MDBAlert, MDBFooter } from 'mdbreact';
 
 
 const Home = ({updateMagnet, history}) => {
