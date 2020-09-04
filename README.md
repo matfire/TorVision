@@ -10,11 +10,17 @@
 
 ****
 
+## Important
+
+I'm currently rebuilding the project from the ground up: you can get an idea of the new design [here](https://www.figma.com/file/OtJol3c385qlI6tmKGta8Y/Torvision?node-id=0%3A1)
+
 ## Technical Stack
 
 ⚛ React
 
-⚛ Redux
+⚛ Tailwind CSS
+
+⚛ HeroIcons
 
 🕸 [Webtorrent](https://webtorrent.io/)
 
@@ -30,9 +36,8 @@
 ## What's to develop
 
 - [ ] drag and drop a torrent file to skip fetching metadata
-- [ ] testing
 - [x] refactoring using react hooks instead of classes
-- [ ] better component separations
+- [x] better component separations
 - [ ] caching system (not having to download the same torrent twice in the same session)
 
 ## Want to help? Found a mistake? have a suggestion?
