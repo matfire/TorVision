@@ -20,7 +20,10 @@ module.exports = {
       customGrey: '#9D8CA1',
       customWhite: "#FFFDF7",
       customBlack:"#0D1321",
-      customBlue:"#1B9AAA",
+      customBlue:{
+        500:"#1B9AAA",
+        700:"#167F8D"
+      },
       customRed:"#BF0603",
       gray: {
         100: '#f7fafc',
